@@ -1,0 +1,47 @@
+Resources:
+  # IAM User for the application
+  # Creates the RekognitionAppUser IAM user with the UserAccessPolicy attached, allowing it to upload images to S3 and interact with SQS.
+  RekognitionAppUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: "RekognitionAppUser"
+      Policies:
+        - PolicyName: "UserAccessPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:PutObject"
+                  - "sqs:ReceiveMessage"
+                  - "sqs:DeleteMessage"
+                Resource: "*"
+
+  # IAM Role for Lambda with necessary permissions
+  # Creates the LambdaPermissionsRole IAM role with LambdaAccessPolicy, granting Lambda the necessary permissions to access S3, call Rekognition, send messages to SQS, and log events to CloudWatch.
+  LambdaPermissionsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "LambdaPermissionsRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "LambdaAccessPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "rekognition:DetectLabels"
+                  - "sqs:SendMessage"
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+

@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "aws-ai-image-analysis"
+version = "0.1.0"
+description = "setup ai-image recognition on aws"
+authors = ["PGSch <pgschdev@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+
+# providers
+openai = "^1.0"
+boto3 = "^1.35.56"
+python-dotenv = "^1.0.1"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

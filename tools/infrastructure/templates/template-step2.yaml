@@ -1,0 +1,38 @@
+Resources:
+  # UserAccessPolicy for RekognitionAppUser permissions
+  UserAccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: "UserAccessPolicy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "s3:PutObject"
+              - "sqs:ReceiveMessage"
+              - "sqs:DeleteMessage"
+            Resource: "*"
+      Users:
+        - !ImportValue "RekognitionAppUserArn"  # Importing ARN exported by Step 1
+
+  # LambdaAccessPolicy for Lambda permissions
+  LambdaAccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: "LambdaAccessPolicy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "s3:GetObject"
+              - "rekognition:DetectLabels"
+              - "sqs:SendMessage"
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "*"
+      Roles:
+        - !ImportValue "LambdaPermissionsRoleArn"  # Importing ARN exported by Step 1
+

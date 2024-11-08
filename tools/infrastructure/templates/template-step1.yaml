@@ -1,0 +1,33 @@
+Resources:
+  # IAM User for the application
+  RekognitionAppUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: "RekognitionAppUser"
+
+  # IAM Role for Lambda with necessary permissions
+  LambdaPermissionsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "LambdaPermissionsRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+
+Outputs:
+  RekognitionAppUserArn:
+    Description: "The ARN of the RekognitionAppUser"
+    Value: !GetAtt RekognitionAppUser.Arn
+    Export:
+      Name: "RekognitionAppUserArn"
+
+  LambdaPermissionsRoleArn:
+    Description: "The ARN of the LambdaPermissionsRole"
+    Value: !GetAtt LambdaPermissionsRole.Arn
+    Export:
+      Name: "LambdaPermissionsRoleArn"
+

@@ -1,0 +1,75 @@
+Resources:
+  # IAM User for the application
+  RekognitionAppUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: "RekognitionAppUser"
+
+  # IAM Role for Lambda with necessary permissions
+  LambdaPermissionsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "LambdaPermissionsRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+
+  # UserAccessPolicy for RekognitionAppUser permissions
+  UserAccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: "UserAccessPolicy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "sqs:DeleteMessage",
+              - "sqs:ReceiveMessage",
+              - "s3:PutObject",
+              - "rekognition:ListStreamProcessors",
+              - "rekognition:StartFaceDetection",
+              - "rekognition:StartLabelDetection",
+              - "rekognition:StartSegmentDetection",
+              - "rekognition:StartTextDetection",
+              - "rekognition:GetTextDetection",
+              - "rekognition:GetSegmentDetection",
+              - "rekognition:GetLabelDetection",
+              - "rekognition:GetFaceDetection",
+              - "rekognition:DetectText",
+              - "rekognition:DetectProtectiveEquipment",
+              - "rekognition:DetectModerationLabels",
+              - "rekognition:DetectLabels",
+              - "rekognition:DetectFaces",
+              - "rekognition:DetectCustomLabels"
+              - "s3:PutObject"
+              - "sqs:ReceiveMessage"
+              - "sqs:DeleteMessage"
+            Resource: "*"
+      Users:
+        - !Ref RekognitionAppUser
+
+  # LambdaAccessPolicy for Lambda permissions
+  LambdaAccessPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: "LambdaAccessPolicy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "s3:GetObject"
+              - "rekognition:DetectLabels"
+              - "sqs:SendMessage"
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Resource: "*"
+      Roles:
+        - !Ref LambdaPermissionsRole
+

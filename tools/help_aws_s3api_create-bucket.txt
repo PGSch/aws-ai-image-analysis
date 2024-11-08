@@ -1,0 +1,547 @@
+CREATE-BUCKET()                                                CREATE-BUCKET()
+
+NNAAMMEE
+       create-bucket -
+
+DDEESSCCRRIIPPTTIIOONN
+       NNOOTTEE::
+          This action creates an Amazon S3 bucket. To create an Amazon S3 on
+          Outposts bucket, see ` CCrreeaatteeBBuucckkeett
+          _h_t_t_p_s_:_/_/_d_o_c_s_._a_w_s_._a_m_a_z_o_n_._c_o_m_/_A_m_a_z_o_n_S_3_/_l_a_t_e_s_t_/_A_P_I_/_A_P_I___c_o_n_t_r_o_l___C_r_e_a_t_e_B_u_c_k_e_t.html`__
+          .
+
+       Creates a new S3 bucket. To create a bucket, you must set up Amazon S3
+       and have a valid Amazon Web Services Access Key ID to authenticate
+       requests. Anonymous requests are never allowed to create buckets. By
+       creating the bucket, you become the bucket owner.
+
+       There are two types of buckets: general purpose buckets and directory
+       buckets. For more information about these bucket types, see _C_r_e_a_t_i_n_g_,
+       _c_o_n_f_i_g_u_r_i_n_g_, _a_n_d _w_o_r_k_i_n_g _w_i_t_h _A_m_a_z_o_n _S_3 _b_u_c_k_e_t_s in the _A_m_a_z_o_n _S_3 _U_s_e_r
+       _G_u_i_d_e .
+
+       NNOOTTEE::
+
+          +o GGeenneerraall ppuurrppoossee bbuucckkeettss - If you send your CCrreeaatteeBBuucckkeett request to
+            the ss33..aammaazzoonnaawwss..ccoomm global endpoint, the request goes to the
+            uuss--eeaasstt--11 Region. So the signature calculations in Signature
+            Version 4 must use uuss--eeaasstt--11 as the Region, even if the location
+            constraint in the request specifies another Region where the
+            bucket is to be created. If you create a bucket in a Region other
+            than US East (N. Virginia), your application must be able to
+            handle 307 redirect. For more information, see _V_i_r_t_u_a_l _h_o_s_t_i_n_g _o_f
+            _b_u_c_k_e_t_s in the _A_m_a_z_o_n _S_3 _U_s_e_r _G_u_i_d_e .
+
+          +o DDiirreeccttoorryy bbuucckkeettss - For directory buckets, you must make requests
+            for this API operation to the Regional endpoint. These endpoints
+            support path-style requests in the format
+            ``
+            _h_t_t_p_s_:_/_/_s_3_e_x_p_r_e_s_s_-_c_o_n_t_r_o_l_._*_r_e_g_i_o_n___c_o_d_e_* .amazonaws.com/_b_u_c_k_e_t_-_n_a_m_e
+            `` . Virtual-hosted-style requests aren't supported. For more
+            information, see _R_e_g_i_o_n_a_l _a_n_d _Z_o_n_a_l _e_n_d_p_o_i_n_t_s in the _A_m_a_z_o_n _S_3
+            _U_s_e_r _G_u_i_d_e .
+
+          System Message: WARNING/2 (<string>:, line 43)
+            Inline literal start-string without end-string.
+
+          Permissions
+
+       +o GGeenneerraall ppuurrppoossee bbuucckkeett ppeerrmmiissssiioonnss - In addition to the
+         ss33::CCrreeaatteeBBuucckkeett permission, the following permissions are required in
+         a policy when your CCrreeaatteeBBuucckkeett request includes specific headers:
+
+         +o AAcccceessss ccoonnttrrooll lliissttss ((AACCLLss)) - In your CCrreeaatteeBBuucckkeett request, if you
+           specify an access control list (ACL) and set it to ppuubblliicc--rreeaadd ,
+           ppuubblliicc--rreeaadd--wwrriittee , aauutthheennttiiccaatteedd--rreeaadd , or if you explicitly
+           specify any other custom ACLs, both ss33::CCrreeaatteeBBuucckkeett and
+           ss33::PPuuttBBuucckkeettAAccll permissions are required. In your CCrreeaatteeBBuucckkeett
+           request, if you set the ACL to pprriivvaattee , or if you don't specify
+           any ACLs, only the ss33::CCrreeaatteeBBuucckkeett permission is required.
+
+         +o OObbjjeecctt LLoocckk - In your CCrreeaatteeBBuucckkeett request, if you set
+           xx--aammzz--bbuucckkeett--oobbjjeecctt--lloocckk--eennaabblleedd to true, the
+           ss33::PPuuttBBuucckkeettOObbjjeeccttLLoocckkCCoonnffiigguurraattiioonn and ss33::PPuuttBBuucckkeettVVeerrssiioonniinngg
+           permissions are required.
+
+         +o SS33 OObbjjeecctt OOwwnneerrsshhiipp - If your CCrreeaatteeBBuucckkeett request includes the
+           xx--aammzz--oobbjjeecctt--oowwnneerrsshhiipp header, then the
+           ss33::PPuuttBBuucckkeettOOwwnneerrsshhiippCCoonnttrroollss permission is required.
+
+         WWAARRNNIINNGG::
+            To set an ACL on a bucket as part of a CCrreeaatteeBBuucckkeett request, you
+            must explicitly set S3 Object Ownership for the bucket to a
+            different value than the default, BBuucckkeettOOwwnneerrEEnnffoorrcceedd .
+            Additionally, if your desired bucket ACL grants public access, you
+            must first create the bucket (without the bucket ACL) and then
+            explicitly disable Block Public Access on the bucket before using
+            PPuuttBBuucckkeettAAccll to set the ACL. If you try to create a bucket with a
+            public ACL, the request will fail.  For the majority of modern use
+            cases in S3, we recommend that you keep all Block Public Access
+            settings enabled and keep ACLs disabled. If you would like to
+            share data with users outside of your account, you can use bucket
+            policies as needed. For more information, see _C_o_n_t_r_o_l_l_i_n_g
+            _o_w_n_e_r_s_h_i_p _o_f _o_b_j_e_c_t_s _a_n_d _d_i_s_a_b_l_i_n_g _A_C_L_s _f_o_r _y_o_u_r _b_u_c_k_e_t and
+            _B_l_o_c_k_i_n_g _p_u_b_l_i_c _a_c_c_e_s_s _t_o _y_o_u_r _A_m_a_z_o_n _S_3 _s_t_o_r_a_g_e in the _A_m_a_z_o_n _S_3
+            _U_s_e_r _G_u_i_d_e .
+
+         +o SS33 BBlloocckk PPuubblliicc AAcccceessss - If your specific use case requires
+           granting public access to your S3 resources, you can disable Block
+           Public Access. Specifically, you can create a new bucket with Block
+           Public Access enabled, then separately call the `
+           DDeelleetteePPuubblliiccAAcccceessssBBlloocckk
+           _h_t_t_p_s_:_/_/_d_o_c_s_._a_w_s_._a_m_a_z_o_n_._c_o_m_/_A_m_a_z_o_n_S_3_/_l_a_t_e_s_t_/_A_P_I_/_A_P_I___D_e_l_e_t_e_P_u_b_l_i_c_A_c_c_e_s_s_B_l_o_c_k.html`__
+           API. To use this operation, you must have the
+           ss33::PPuuttBBuucckkeettPPuubblliiccAAcccceessssBBlloocckk permission. For more information
+           about S3 Block Public Access, see _B_l_o_c_k_i_n_g _p_u_b_l_i_c _a_c_c_e_s_s _t_o _y_o_u_r
+           _A_m_a_z_o_n _S_3 _s_t_o_r_a_g_e in the _A_m_a_z_o_n _S_3 _U_s_e_r _G_u_i_d_e .
+
+       +o DDiirreeccttoorryy bbuucckkeett ppeerrmmiissssiioonnss - You must have the
+         ss33eexxpprreessss::CCrreeaatteeBBuucckkeett permission in an IAM identity-based policy
+         instead of a bucket policy. Cross-account access to this API
+         operation isn't supported. This operation can only be performed by
+         the Amazon Web Services account that owns the resource. For more
+         information about directory bucket policies and permissions, see
+         _A_m_a_z_o_n _W_e_b _S_e_r_v_i_c_e_s _I_d_e_n_t_i_t_y _a_n_d _A_c_c_e_s_s _M_a_n_a_g_e_m_e_n_t _(_I_A_M_) _f_o_r _S_3
+         _E_x_p_r_e_s_s _O_n_e _Z_o_n_e in the _A_m_a_z_o_n _S_3 _U_s_e_r _G_u_i_d_e .
+
+       WWAARRNNIINNGG::
+                The permissions for ACLs, Object Lock, S3 Object Ownership,
+                and S3 Block Public Access are not supported for directory
+                buckets. For directory buckets, all Block Public Access
+                settings are enabled at the bucket level and S3 Object
+                Ownership is set to Bucket owner enforced (ACLs disabled).
+                These settings can't be modified.  For more information about
+                permissions for creating and working with directory buckets,
+                see _D_i_r_e_c_t_o_r_y _b_u_c_k_e_t_s in the _A_m_a_z_o_n _S_3 _U_s_e_r _G_u_i_d_e . For more
+                information about supported S3 features for directory buckets,
+                see _F_e_a_t_u_r_e_s _o_f _S_3 _E_x_p_r_e_s_s _O_n_e _Z_o_n_e in the _A_m_a_z_o_n _S_3 _U_s_e_r
+                _G_u_i_d_e .
+
+              HTTP Host header syntax
+
+          DDiirreeccttoorryy bbuucckkeettss - The HTTP Host header syntax is
+          ss33eexxpprreessss--ccoonnttrrooll..**rreeggiioonn** ..aammaazzoonnaawwss..ccoomm .
+
+       The following operations are related to CCrreeaatteeBBuucckkeett :
+
+       +o _P_u_t_O_b_j_e_c_t
+
+       +o _D_e_l_e_t_e_B_u_c_k_e_t
+
+       See also: AWS API Documentation
+
+SSYYNNOOPPSSIISS
+
+            create-bucket
+          [--acl <value>]
+          --bucket <value>
+          [--create-bucket-configuration <value>]
+          [--grant-full-control <value>]
+          [--grant-read <value>]
+          [--grant-read-acp <value>]
+          [--grant-write <value>]
+          [--grant-write-acp <value>]
+          [--object-lock-enabled-for-bucket | --no-object-lock-enabled-for-bucket]
+          [--object-ownership <value>]
+          [--cli-input-json | --cli-input-yaml]
+          [--generate-cli-skeleton <value>]
+          [--debug]
+          [--endpoint-url <value>]
+          [--no-verify-ssl]
+          [--no-paginate]
+          [--output <value>]
+          [--query <value>]
+          [--profile <value>]
+          [--region <value>]
+          [--version <value>]
+          [--color <value>]
+          [--no-sign-request]
+          [--ca-bundle <value>]
+          [--cli-read-timeout <value>]
+          [--cli-connect-timeout <value>]
+          [--cli-binary-format <value>]
+          [--no-cli-pager]
+          [--cli-auto-prompt]
+          [--no-cli-auto-prompt]
+
+OOPPTTIIOONNSS
+       ----aaccll (string)
+          The canned ACL to apply to the bucket.
+
+          NNOOTTEE::
+             This functionality is not supported for directory buckets.
+
+          Possible values:
+
+          +o pprriivvaattee
+
+          +o ppuubblliicc--rreeaadd
+
+          +o ppuubblliicc--rreeaadd--wwrriittee
+
+          +o aauutthheennttiiccaatteedd--rreeaadd
+
+       ----bbuucckkeett (string)
+          The name of the bucket to create.
+             GGeenneerraall ppuurrppoossee bbuucckkeettss - For information about bucket naming
+             restrictions, see _B_u_c_k_e_t _n_a_m_i_n_g _r_u_l_e_s in the _A_m_a_z_o_n _S_3 _U_s_e_r _G_u_i_d_e
+             .
+
+             DDiirreeccttoorryy bbuucckkeettss - When you use this operation with a directory
+             bucket, you must use path-style requests in the format
+             hhttttppss::////ss33eexxpprreessss--ccoonnttrrooll..**rreeggiioonn__ccooddee**
+             ..aammaazzoonnaawwss..ccoomm//**bbuucckkeett--nnaammee** ```` .. VViirrttuuaall--hhoosstteedd--ssttyyllee rreeqquueessttss
+             aarreenn''tt ssuuppppoorrtteedd.. DDiirreeccttoorryy bbuucckkeett nnaammeess mmuusstt bbee uunniiqquuee iinn tthhee
+             cchhoosseenn AAvvaaiillaabbiilliittyy ZZoonnee.. BBuucckkeett nnaammeess mmuusstt aallssoo ffoollllooww tthhee
+             ffoorrmmaatt ```` **bbuucckkeett__bbaassee__nnaammee** ----**aazz__iidd** ----xx--ss33 (for example, ``
+             _D_O_C_-_E_X_A_M_P_L_E_-_B_U_C_K_E_T --_u_s_w_2_-_a_z_1 --x-s3`` ). For information about
+             bucket naming restrictions, see _D_i_r_e_c_t_o_r_y _b_u_c_k_e_t _n_a_m_i_n_g _r_u_l_e_s in
+             the _A_m_a_z_o_n _S_3 _U_s_e_r _G_u_i_d_e
+
+       ----ccrreeaattee--bbuucckkeett--ccoonnffiigguurraattiioonn (structure)
+          The configuration information for the bucket.
+
+          LocationConstraint -> (string)
+             Specifies the Region where the bucket will be created. You might
+             choose a Region to optimize latency, minimize costs, or address
+             regulatory requirements. For example, if you reside in Europe,
+             you will probably find it advantageous to create buckets in the
+             Europe (Ireland) Region. For more information, see _A_c_c_e_s_s_i_n_g _a
+             _b_u_c_k_e_t in the _A_m_a_z_o_n _S_3 _U_s_e_r _G_u_i_d_e .
+
+             If you don't specify a Region, the bucket is created in the US
+             East (N. Virginia) Region (us-east-1) by default.
+
+             NNOOTTEE::
+                This functionality is not supported for directory buckets.
+
+          Location -> (structure)
+             Specifies the location where the bucket will be created.
+
+             For directory buckets, the location type is Availability Zone.
+
+             NNOOTTEE::
+                This functionality is only supported by directory buckets.
+
+              Type -> (string)
+                The type of location where the bucket will be created.
+
+              Name -> (string)
+                The name of the location where the bucket will be created.
+
+                For directory buckets, the name of the location is the AZ ID
+                of the Availability Zone where the bucket will be created. An
+                example AZ ID value is uussww22--aazz11 .
+
+          Bucket -> (structure)
+             Specifies the information about the bucket that will be created.
+
+             NNOOTTEE::
+                This functionality is only supported by directory buckets.
+
+              DataRedundancy -> (string)
+                The number of Availability Zone that's used for redundancy for
+                the bucket.
+
+              Type -> (string)
+                The type of bucket.
+
+       Shorthand Syntax:
+
+          LocationConstraint=string,Location={Type=string,Name=string},Bucket={DataRedundancy=string,Type=string}
+
+       JSON Syntax:
+
+          {
+            "LocationConstraint": "af-south-1"|"ap-east-1"|"ap-northeast-1"|"ap-northeast-2"|"ap-northeast-3"|"ap-south-1"|"ap-south-2"|"ap-southeast-1"|"ap-southeast-2"|"ap-southeast-3"|"ca-central-1"|"cn-north-1"|"cn-northwest-1"|"EU"|"eu-central-1"|"eu-north-1"|"eu-south-1"|"eu-south-2"|"eu-west-1"|"eu-west-2"|"eu-west-3"|"me-south-1"|"sa-east-1"|"us-east-2"|"us-gov-east-1"|"us-gov-west-1"|"us-west-1"|"us-west-2",
+            "Location": {
+              "Type": "AvailabilityZone",
+              "Name": "string"
+            },
+            "Bucket": {
+              "DataRedundancy": "SingleAvailabilityZone",
+              "Type": "Directory"
+            }
+          }
+
+       ----ggrraanntt--ffuullll--ccoonnttrrooll (string)
+          Allows grantee the read, write, read ACP, and write ACP permissions
+          on the bucket.
+
+          NNOOTTEE::
+             This functionality is not supported for directory buckets.
+
+       ----ggrraanntt--rreeaadd (string)
+          Allows grantee to list the objects in the bucket.
+
+          NNOOTTEE::
+             This functionality is not supported for directory buckets.
+
+       ----ggrraanntt--rreeaadd--aaccpp (string)
+          Allows grantee to read the bucket ACL.
+
+          NNOOTTEE::
+             This functionality is not supported for directory buckets.
+
+       ----ggrraanntt--wwrriittee (string)
+          Allows grantee to create new objects in the bucket.
+
+          For the bucket and object owners of existing objects, also allows
+          deletions and overwrites of those objects.
+
+          NNOOTTEE::
+             This functionality is not supported for directory buckets.
+
+       ----ggrraanntt--wwrriittee--aaccpp (string)
+          Allows grantee to write the ACL for the applicable bucket.
+
+          NNOOTTEE::
+             This functionality is not supported for directory buckets.
+
+       ----oobbjjeecctt--lloocckk--eennaabblleedd--ffoorr--bbuucckkeett | ----nnoo--oobbjjeecctt--lloocckk--eennaabblleedd--ffoorr--bbuucckkeett
+       (boolean)
+          Specifies whether you want S3 Object Lock to be enabled for the new
+          bucket.
+
+          NNOOTTEE::
+             This functionality is not supported for directory buckets.
+
+       ----oobbjjeecctt--oowwnneerrsshhiipp (string)
+          The container element for object ownership for a bucket's ownership
+          controls.
+             BBuucckkeettOOwwnneerrPPrreeffeerrrreedd - Objects uploaded to the bucket change
+             ownership to the bucket owner if the objects are uploaded with
+             the bbuucckkeett--oowwnneerr--ffuullll--ccoonnttrrooll canned ACL.
+
+             OObbjjeeccttWWrriitteerr - The uploading account will own the object if the
+             object is uploaded with the bbuucckkeett--oowwnneerr--ffuullll--ccoonnttrrooll canned ACL.
+
+             BBuucckkeettOOwwnneerrEEnnffoorrcceedd - Access control lists (ACLs) are disabled
+             and no longer affect permissions. The bucket owner automatically
+             owns and has full control over every object in the bucket. The
+             bucket only accepts PUT requests that don't specify an ACL or
+             specify bucket owner full control ACLs (such as the predefined
+             bbuucckkeett--oowwnneerr--ffuullll--ccoonnttrrooll canned ACL or a custom ACL in XML
+             format that grants the same permissions).
+
+          By default, OObbjjeeccttOOwwnneerrsshhiipp is set to BBuucckkeettOOwwnneerrEEnnffoorrcceedd and ACLs
+          are disabled. We recommend keeping ACLs disabled, except in uncommon
+          use cases where you must control access for each object
+          individually. For more information about S3 Object Ownership, see
+          _C_o_n_t_r_o_l_l_i_n_g _o_w_n_e_r_s_h_i_p _o_f _o_b_j_e_c_t_s _a_n_d _d_i_s_a_b_l_i_n_g _A_C_L_s _f_o_r _y_o_u_r _b_u_c_k_e_t
+          in the _A_m_a_z_o_n _S_3 _U_s_e_r _G_u_i_d_e .
+
+          NNOOTTEE::
+             This functionality is not supported for directory buckets.
+             Directory buckets use the bucket owner enforced setting for S3
+             Object Ownership.
+
+          Possible values:
+
+          +o BBuucckkeettOOwwnneerrPPrreeffeerrrreedd
+
+          +o OObbjjeeccttWWrriitteerr
+
+          +o BBuucckkeettOOwwnneerrEEnnffoorrcceedd
+
+       ----ccllii--iinnppuutt--jjssoonn | ----ccllii--iinnppuutt--yyaammll (string) Reads arguments from the
+       JSON string provided. The JSON string follows the format provided by
+       ----ggeenneerraattee--ccllii--sskkeelleettoonn. If other arguments are provided on the command
+       line, those values will override the JSON-provided values. It is not
+       possible to pass arbitrary binary values using a JSON-provided value as
+       the string will be taken literally. This may not be specified along
+       with ----ccllii--iinnppuutt--yyaammll.
+
+       ----ggeenneerraattee--ccllii--sskkeelleettoonn (string) Prints a JSON skeleton to standard
+       output without sending an API request. If provided with no value or the
+       value iinnppuutt, prints a sample input JSON that can be used as an argument
+       for ----ccllii--iinnppuutt--jjssoonn. Similarly, if provided yyaammll--iinnppuutt it will print a
+       sample input YAML that can be used with ----ccllii--iinnppuutt--yyaammll. If provided
+       with the value oouuttppuutt, it validates the command inputs and returns a
+       sample output JSON for that command. The generated JSON skeleton is not
+       stable between versions of the AWS CLI and there are no backwards
+       compatibility guarantees in the JSON skeleton generated.
+
+GGLLOOBBAALL OOPPTTIIOONNSS
+       ----ddeebbuugg (boolean)
+
+       Turn on debug logging.
+
+       ----eennddppooiinntt--uurrll (string)
+
+       Override command's default URL with the given URL.
+
+       ----nnoo--vveerriiffyy--ssssll (boolean)
+
+       By default, the AWS CLI uses SSL when communicating with AWS services.
+       For each SSL connection, the AWS CLI will verify SSL certificates. This
+       option overrides the default behavior of verifying SSL certificates.
+
+       ----nnoo--ppaaggiinnaattee (boolean)
+
+       Disable automatic pagination. If automatic pagination is disabled, the
+       AWS CLI will only make one call, for the first page of results.
+
+       ----oouuttppuutt (string)
+
+       The formatting style for command output.
+
+       +o json
+
+       +o text
+
+       +o table
+
+       +o yaml
+
+       +o yaml-stream
+
+       ----qquueerryy (string)
+
+       A JMESPath query to use in filtering the response data.
+
+       ----pprrooffiillee (string)
+
+       Use a specific profile from your credential file.
+
+       ----rreeggiioonn (string)
+
+       The region to use. Overrides config/env settings.
+
+       ----vveerrssiioonn (string)
+
+       Display the version of this tool.
+
+       ----ccoolloorr (string)
+
+       Turn on/off color output.
+
+       +o on
+
+       +o off
+
+       +o auto
+
+       ----nnoo--ssiiggnn--rreeqquueesstt (boolean)
+
+       Do not sign requests. Credentials will not be loaded if this argument
+       is provided.
+
+       ----ccaa--bbuunnddllee (string)
+
+       The CA certificate bundle to use when verifying SSL certificates.
+       Overrides config/env settings.
+
+       ----ccllii--rreeaadd--ttiimmeeoouutt (int)
+
+       The maximum socket read time in seconds. If the value is set to 0, the
+       socket read will be blocking and not timeout. The default value is 60
+       seconds.
+
+       ----ccllii--ccoonnnneecctt--ttiimmeeoouutt (int)
+
+       The maximum socket connect time in seconds. If the value is set to 0,
+       the socket connect will be blocking and not timeout. The default value
+       is 60 seconds.
+
+       ----ccllii--bbiinnaarryy--ffoorrmmaatt (string)
+
+       The formatting style to be used for binary blobs. The default format is
+       base64. The base64 format expects binary blobs to be provided as a
+       base64 encoded string. The raw-in-base64-out format preserves
+       compatibility with AWS CLI V1 behavior and binary values must be passed
+       literally. When providing contents from a file that map to a binary
+       blob ffiilleebb:://// will always be treated as binary and use the file
+       contents directly regardless of the ccllii--bbiinnaarryy--ffoorrmmaatt setting. When
+       using ffiillee:://// the file contents will need to properly formatted for the
+       configured ccllii--bbiinnaarryy--ffoorrmmaatt.
+
+       +o base64
+
+       +o raw-in-base64-out
+
+       ----nnoo--ccllii--ppaaggeerr (boolean)
+
+       Disable cli pager for output.
+
+       ----ccllii--aauuttoo--pprroommpptt (boolean)
+
+       Automatically prompt for CLI input parameters.
+
+       ----nnoo--ccllii--aauuttoo--pprroommpptt (boolean)
+
+       Disable automatically prompt for CLI input parameters.
+
+EEXXAAMMPPLLEESS
+       NNOOTTEE::
+          To use the following examples, you must have the AWS CLI installed
+          and configured. See the _G_e_t_t_i_n_g _s_t_a_r_t_e_d _g_u_i_d_e in the _A_W_S _C_L_I _U_s_e_r
+          _G_u_i_d_e for more information.
+
+          Unless otherwise stated, all examples have unix-like quotation
+          rules. These examples will need to be adapted to your terminal's
+          quoting rules. See _U_s_i_n_g _q_u_o_t_a_t_i_o_n _m_a_r_k_s _w_i_t_h _s_t_r_i_n_g_s in the _A_W_S _C_L_I
+          _U_s_e_r _G_u_i_d_e .
+
+       EExxaammppllee 11:: TToo ccrreeaattee aa bbuucckkeett
+
+       The following ccrreeaattee--bbuucckkeett example creates a bucket named mmyy--bbuucckkeett:
+
+          aws s3api create-bucket \
+              --bucket my-bucket \
+              --region us-east-1
+
+       Output:
+
+          {
+              "Location": "/my-bucket"
+          }
+
+       For more information, see _C_r_e_a_t_i_n_g _a _b_u_c_k_e_t in the _A_m_a_z_o_n _S_3 _U_s_e_r
+       _G_u_i_d_e.
+
+       EExxaammppllee 22:: TToo ccrreeaattee aa bbuucckkeett wwiitthh oowwnneerr eennffoorrcceedd
+
+       The following ccrreeaattee--bbuucckkeett example creates a bucket named mmyy--bbuucckkeett
+       that uses the bucket owner enforced setting for S3 Object Ownership.
+
+          aws s3api create-bucket \
+              --bucket my-bucket \
+              --region us-east-1 \
+              --object-ownership BucketOwnerEnforced
+
+       Output:
+
+          {
+              "Location": "/my-bucket"
+          }
+
+       For more information, see _C_o_n_t_r_o_l_l_i_n_g _o_w_n_e_r_s_h_i_p _o_f _o_b_j_e_c_t_s _a_n_d
+       _d_i_s_a_b_l_i_n_g _A_C_L_s in the _A_m_a_z_o_n _S_3 _U_s_e_r _G_u_i_d_e.
+
+       EExxaammppllee 33:: TToo ccrreeaattee aa bbuucckkeett oouuttssiiddee ooff tthhee ````uuss--eeaasstt--11```` rreeggiioonn
+
+       The following ccrreeaattee--bbuucckkeett example creates a bucket named mmyy--bbuucckkeett in
+       the eeuu--wweesstt--11 region. Regions outside of uuss--eeaasstt--11 require the
+       appropriate LLooccaattiioonnCCoonnssttrraaiinntt to be specified in order to create the
+       bucket in the desired region.
+
+          aws s3api create-bucket \
+              --bucket my-bucket \
+              --region eu-west-1 \
+              --create-bucket-configuration LocationConstraint=eu-west-1
+
+       Output:
+
+          {
+              "Location": "http://my-bucket.s3.amazonaws.com/"
+          }
+
+       For more information, see _C_r_e_a_t_i_n_g _a _b_u_c_k_e_t in the _A_m_a_z_o_n _S_3 _U_s_e_r
+       _G_u_i_d_e.
+
+OOUUTTPPUUTT
+       Location -> (string)
+          A forward slash followed by the name of the bucket.
+
+                                                               CREATE-BUCKET()
